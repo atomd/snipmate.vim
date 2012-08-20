@@ -55,16 +55,16 @@ snippet begin
 	end
 # fun directive
 snippet fun
-	fun (${1:_Parameter}) -> ${2:_Body} end
+	fun (${1}) -> ${2:_Body} end
 # func directive
 snippet func
-	${1:_FuncName}(${2:_Parameter}) ->
+	${1:_FuncName}(${2}) ->
 	    ${3:_Body}
 # doc directive
 snippet doc
 	%%--------------------------------------------------------------------
 	%% @doc
-	%% @spec ${1:_FuncName}(${2:_Parameter}) -> ${3:_Body}
+	%% @spec ${1:_FuncName}(${2}) -> ${3:_Body}
 	%% @end
 	%%--------------------------------------------------------------------
 	${4}
@@ -84,6 +84,7 @@ snippet tryof
 	catch
 		${3:_}:${4:_} -> ${5}
 	end
+	${6}
 #try directive
 snippet try
 	try
@@ -91,11 +92,21 @@ snippet try
 	catch
 		${2:_}:${3:_} -> ${4}
 	end
+	${5}
 #rcv directive
 snippet rcv
 	receive
 		${1:_Pattern [when _Guard]} -> ${2:_Body}
 	end
+	${3}
+#rcv directive
+snippet rcva
+	receive
+		${1:_Body}
+	after ${2:infinite} ->
+		${3:_Body}
+	end
+	${4}
 #loop directive
 snippet loop
 	${1:loop}(${2:`''`}) ->
@@ -104,3 +115,26 @@ snippet loop
 				$1($2)
 	    end.
 	${4}
+#template
+snippet template
+	-module(${1:`Filename('', 'my')`}).
+	-compile([export_all]).
+	
+	start() ->
+	    spawn(fun () -> loop([]) end).
+
+	rpc(Pid, Request) ->
+	    Pid ! {self(), Request},
+	    receive
+	        {Pid, Response} ->
+	            Response
+	    end.
+	
+	loop(L) ->
+	    receive
+	        {From, Request} ->
+	            io:format("loop received:~p~n", [Request]),
+	            From ! {self(), ${2:not_implemented}},
+	            loop(L)
+	    end.
+	${3}
